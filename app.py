@@ -1,110 +1,131 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
-st.set_page_config(page_title="Global Supply Chain Shock Intelligence", layout="wide")
+st.set_page_config(page_title="Global Supply Chain Risk Intelligence", layout="wide")
 
-# Dark theme colors
-bg = "#0E1117"
-card = "#1E2A3A"
-text = "#FFFFFF"
-red = "#FF4B4B"
-orange = "#FFA500"
-yellow = "#FFD700"
+# Dark theme
+st.markdown("""
+<style>
+.stApp {background-color: #0E1117; color: white;}
+[data-testid="stMetricValue"] {font-size: 2rem; font-weight: bold;}
+[data-testid="stMetricLabel"] {color: #A0A0A0; text-transform: uppercase; font-size: 0.8rem;}
+</style>
+""", unsafe_allow_html=True)
 
-st.title("🌍 Global Supply Chain Shock Intelligence")
-st.markdown("Real-time risk monitoring for global trade disruptions")
+# Header
+st.title("Global Supply Chain Risk Intelligence")
+st.markdown("Impact Analysis for Businesses, Consumers & Investors")
 
-# Scenario selector
-scenario1 = st.selectbox("Select Disruption Scenario", 
-                         ["Red Sea Crisis", "Taiwan Semiconductor Ban", "US-China Tariffs"])
+# Scenario + Compare Mode
+col1, col2 = st.columns([4, 1])
+with col1:
+    scenario = st.selectbox("Select Shock Scenario", ["Semiconductor Shock - Taiwan 40%"])
+with col2:
+    compare_mode = st.toggle("Compare Mode")
 
-# Risk data based on scenario
-if scenario1 == "Red Sea Crisis":
-    countries = ['China', 'India', 'Germany', 'United States', 'Japan', 'South Korea']
-    risks = [9.2, 8.5, 7.8, 6.4, 7.1, 8.9]
-    industries = ['Shipping', 'Electronics', 'Automotive', 'Textiles', 'Energy']
-    ind_risks = [9.8, 8.2, 7.5, 8.9, 9.1]
-    price = {'Container Freight': 280, 'Oil': 35, 'Electronics': 22}
-    codes = ['CHN', 'IND', 'DEU', 'USA', 'JPN', 'KOR']
+# Tabs
+tab1, tab2 = st.tabs(["Supply Chain Risk", "Investment Intelligence"])
+
+with tab1:
+    # 4 Metrics
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("INDUSTRIES IMPACTED", "3/5", "↑ 0% from baseline")
+    m2.metric("REVENUE AT RISK", "$420B")
+    m3.metric("COUNTRIES AFFECTED", "18")
+    m4.metric("RISK SCORE", "9.1/10", "↑ Critical", delta_color="inverse")
     
-elif scenario1 == "Taiwan Semiconductor Ban":
-    countries = ['Taiwan', 'China', 'United States', 'South Korea', 'Japan', 'Germany']
-    risks = [9.8, 8.7, 8.1, 9.3, 8.5, 7.2]
-    industries = ['Semiconductors', 'Electronics', 'Automotive', 'Mobile Phones', 'Cloud']
-    ind_risks = [9.9, 9.2, 8.7, 8.8, 8.0]
-    price = {'Chips': 150, 'Smartphones': 45, 'Laptops': 38}
-    codes = ['TWN', 'CHN', 'USA', 'KOR', 'JPN', 'DEU']
-    
-else:  # US-China Tariffs
-    countries = ['China', 'United States', 'Vietnam', 'Mexico', 'India', 'Germany']
-    risks = [9.1, 7.8, 8.4, 7.9, 6.8, 6.2]
-    industries = ['Manufacturing', 'Electronics', 'Textiles', 'Machinery', 'Chemicals']
-    ind_risks = [9.0, 8.5, 8.8, 7.9, 7.2]
-    price = {'Consumer Goods': 25, 'Industrial Parts': 32, 'Raw Materials': 18}
-    codes = ['CHN', 'USA', 'VNM', 'MEX', 'IND', 'DEU']
-
-df_country = pd.DataFrame({
-    'Country': countries,
-    'Risk': risks,
-    'Code': codes
-})
-
-# Overall Risk Score
-st.metric("Overall Risk Score", f"{max(risks)}/10", delta=f"+{max(risks)-5:.1f}")
-
-# MAP SECTION - NEW
-st.subheader("Country Risk Map")
-fig_map = px.choropleth(df_country, 
-                        locations='Code', 
-                        color='Risk', 
-                        hover_name='Country', 
-                        color_continuous_scale='Reds',
-                        range_color=(0, 10),
-                        labels={'Risk': 'Risk Score'})
-fig_map.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=500)
-st.plotly_chart(fig_map, use_container_width=True)
-
-# Country Table
-st.subheader("Country Risk Table")
-st.dataframe(df_country, use_container_width=True, hide_index=True)
-
-# Columns for Industry + Price
-colA, colB = st.columns([1.2, 0.8])
-
-with colA:
-    st.subheader("Industry Risk Matrix")
-    df_ind = pd.DataFrame({
-        'Industry': industries,
-        'Risk': ind_risks
+    # MAP - Scatter geo with bubbles like your screenshot
+    st.subheader("Supply Chain Risk Map")
+    df_map = pd.DataFrame({
+        'Country': ['USA', 'Germany', 'China', 'Taiwan', 'India', 'Japan', 'Vietnam'],
+        'Risk': [7, 6, 10, 9, 5, 8, 4],
+        'Lat': [37.09, 51.16, 35.86, 23.69, 20.59, 36.20, 14.05],
+        'Lon': [-95.71, 10.45, 104.19, 120.96, 78.96, 138.25, 108.28]
     })
-    fig_bar = px.bar(df_ind, x='Industry', y='Risk', color='Risk', 
-                     color_continuous_scale='Reds')
-    fig_bar.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=400)
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-with colB:
-    st.subheader("Consumer Price Impact")
-    st.markdown(f"<div style='background:{card};padding:1rem;border-radius:10px'>", unsafe_allow_html=True)
     
-    for p, inc in price.items():
-        st.markdown(f"{p}: <span style='color:{red};font-weight:bold'>{inc}% ↑</span>", unsafe_allow_html=True)
+    fig_map = px.scatter_geo(df_map, lat='Lat', lon='Lon', size='Risk', color='Risk',
+                             hover_name='Country', size_max=40,
+                             color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'])
+    fig_map.update_geos(projection_type="orthographic", showland=True, landcolor="#0E1117",
+                        showocean=True, oceancolor="#000", showcountries=True, countrycolor="#FFFFFF")
+    fig_map.update_layout(height=500, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor="#0E1117")
+    st.plotly_chart(fig_map, use_container_width=True)
     
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Country Risk Breakdown Table
+    st.subheader("Country Risk Breakdown")
+    df_country = pd.DataFrame({
+        'Country': ['Taiwan', 'China', 'USA', 'Germany', 'India', 'Japan', 'Vietnam'],
+        'Risk Score': [9, 10, 7, 6, 5, 8, 4],
+        'Risk Level': ['Critical', 'Critical', 'High', 'Medium', 'Medium', 'High', 'Low']
+    })
+    st.dataframe(df_country, use_container_width=True, hide_index=True)
+    
+    # Industry + Price columns
+    colA, colB = st.columns([1.5, 1])
+    with colA:
+        st.subheader("Industry Risk Score")
+        df_ind = pd.DataFrame({
+            'Industry': ['Banking', 'Electronics', 'Textile', 'Pharma', 'Automotive'],
+            'Risk': [10, 9, 7, 6, 4]
+        })
+        fig_bar = px.bar(df_ind, x='Risk', y='Industry', orientation='h', 
+                         color='Risk', color_continuous_scale='Reds')
+        fig_bar.update_layout(height=350, paper_bgcolor="#0E1117", plot_bgcolor="#0E1117", 
+                              font=dict(color="white"), xaxis=dict(range=[0,10]))
+        st.plotly_chart(fig_bar, use_container_width=True)
+    
+    with colB:
+        st.subheader("Consumer Price Impact")
+        st.markdown("Laptops: **+35%**")
+        st.markdown("Smartphones: **+40%**")
+        st.markdown("Cars: **+18%**")
+        st.markdown("Gaming Consoles: **+45%**")
+        st.button("Timeline: Price changes expected in 2 weeks")
+    
+    # Executive Summary
+    with st.expander("Executive Summary & Recommendations", expanded=True):
+        st.markdown("**Scenario:** Semiconductor Shock - Taiwan 40%")
+        st.markdown("**Key Impact:** China and Banking sector face highest risk at 10/10 and 10/10 respectively.")
+        st.markdown("**Financial Impact:** Estimated $420B revenue at risk across 18 countries.")
+        st.markdown("**Recommendations:**")
+        st.markdown("1. Diversify supplier base away from high-risk regions")
+        st.markdown("2. Increase inventory buffer for critical components")
+        st.markdown("3. Implement dynamic pricing strategies")
+        st.markdown("4. Monitor secondary supplier markets")
 
-# Executive Summary
-with st.expander("Executive Summary & Recommendations", expanded=True):
-    top_country = countries[risks.index(max(risks))]
-    top_industry = industries[ind_risks.index(max(ind_risks))]
-    st.markdown(f"""
-    **Scenario**: {scenario1}  
-    **Key Impact**: {top_country} and {top_industry} sector face highest risk at {max(risks)}/10.  
-    **Recommendation**: 
-    1. Diversify suppliers away from high-risk regions
-    2. Build 60-day inventory buffer for critical components  
-    3. Hedge currency exposure for USD/CNY transactions
-    4. Activate alternate shipping routes immediately
-    """)
-
-st.caption("Data simulated for demonstration. Updates every 5 minutes.")
-   
+with tab2:
+    st.subheader("Investment Intelligence")
+    st.markdown(f"Analysis for: {scenario}")
+    
+    # 3 boxes
+    b1, b2, b3 = st.columns(3)
+    with b1:
+        st.markdown("<div style='border:2px solid green;padding:1rem;border-radius:5px'>Buy Opportunities<br>Automotive → 6/10</div>", unsafe_allow_html=True)
+    with b2:
+        st.markdown("<div style='border:2px solid orange;padding:1rem;border-radius:5px'>Hold<br>Pharma → 4/10</div>", unsafe_allow_html=True)
+    with b3:
+        st.markdown("<div style='border:2px solid red;padding:1rem;border-radius:5px'>Avoid - High Risk<br>Electronics → 9/10<br>Banking → 10/10</div>", unsafe_allow_html=True)
+    
+    # Risk vs Opportunity Matrix
+    colX, colY = st.columns([2, 1])
+    with colX:
+        st.subheader("Risk vs Opportunity Matrix")
+        df_scatter = pd.DataFrame({
+            'Industry': ['Electronics', 'Automotive', 'Pharma', 'Textile', 'Banking'],
+            'Risk': [9, 4, 6, 7, 10],
+            'Opportunity': [1, 6, 4, 3, 0]
+        })
+        fig_scatter = px.scatter(df_scatter, x='Risk', y='Opportunity', color='Industry', size=[20]*5)
+        fig_scatter.update_layout(height=400, paper_bgcolor="#0E1117", plot_bgcolor="#0E1117", font=dict(color="white"))
+        st.plotly_chart(fig_scatter, use_container_width=True)
+    
+    with colY:
+        st.subheader("Investment Guidance")
+        st.markdown("Reduce exposure: Electronics, Banking")
+        st.markdown("Consider increasing: Automotive")
+        st.warning("For demonstration purposes only. Not financial advice")
+    
+    with st.expander("Methodology & Assumptions"):
+        st.markdown("Risk scores based on supplier concentration, geopolitical stability, and trade dependency.")
