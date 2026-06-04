@@ -164,8 +164,9 @@ fig = px.scatter_geo(df,
 fig.update_geos(showocean=True, oceancolor="rgb(10,10,30)", showland=True, landcolor="rgb(20,20,20)")
 fig.update_layout(margin={"r":0,"t":40,"l":0,"b":0}, height=450, paper_bgcolor="black")
 st.plotly_chart(fig, use_container_width=True)
-   
-    # COUNTRY TABLE
+
+
+# COUNTRY TABLE
     st.subheader("Country Risk Breakdown")
     df_country = pd.DataFrame({
         'Country': countries,
