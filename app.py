@@ -1,16 +1,29 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(page_title="Global Supply Chain Risk Intelligence", layout="wide")
 
-# Dark theme
-st.markdown("""
+# Dark/White mode toggle
+theme_mode = st.toggle("🌙 Dark Mode", value=True)
+
+if theme_mode:
+    bg = "#0E1117"
+    text = "white"
+    card = "#1E2A3A"
+    land = "#1E2A3A"
+else:
+    bg = "#FFFFFF"
+    text = "black"
+    card = "#F0F2F6"
+    land = "#E0E0E0"
+
+# Theme CSS
+st.markdown(f"""
 <style>
-.stApp {background-color: #0E1117; color: white;}
-[data-testid="stMetricValue"] {font-size: 2rem; font-weight: bold;}
-[data-testid="stMetricLabel"] {color: #A0A0A0; text-transform: uppercase; font-size: 0.8rem;}
+.stApp {{background-color: {bg}; color: {text};}}
+[data-testid="stMetricValue"] {{font-size: 2rem; font-weight: bold; color: {text};}}
+[data-testid="stMetricLabel"] {{color: #A0A0A0; text-transform: uppercase; font-size: 0.8rem;}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -36,7 +49,7 @@ with tab1:
     m3.metric("COUNTRIES AFFECTED", "18")
     m4.metric("RISK SCORE", "9.1/10", "↑ Critical", delta_color="inverse")
     
-    # MAP - Scatter geo with bubbles like your screenshot
+    # MAP - FIXED for visibility
     st.subheader("Supply Chain Risk Map")
     df_map = pd.DataFrame({
         'Country': ['USA', 'Germany', 'China', 'Taiwan', 'India', 'Japan', 'Vietnam'],
@@ -46,11 +59,13 @@ with tab1:
     })
     
     fig_map = px.scatter_geo(df_map, lat='Lat', lon='Lon', size='Risk', color='Risk',
-                             hover_name='Country', size_max=40,
+                             hover_name='Country', size_max=50,
                              color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'])
-    fig_map.update_geos(projection_type="orthographic", showland=True, landcolor="#0E1117",
-                        showocean=True, oceancolor="#000", showcountries=True, countrycolor="#FFFFFF")
-    fig_map.update_layout(height=500, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor="#0E1117")
+    fig_map.update_geos(projection_type="natural earth", showland=True, landcolor=land,
+                        showocean=True, oceancolor=bg, showcountries=True, 
+                        countrycolor=text, coastlinecolor=text)
+    fig_map.update_layout(height=500, margin=dict(l=0,r=0,t=0,b=0), 
+                          paper_bgcolor=bg, font=dict(color=text))
     st.plotly_chart(fig_map, use_container_width=True)
     
     # Country Risk Breakdown Table
@@ -72,16 +87,18 @@ with tab1:
         })
         fig_bar = px.bar(df_ind, x='Risk', y='Industry', orientation='h', 
                          color='Risk', color_continuous_scale='Reds')
-        fig_bar.update_layout(height=350, paper_bgcolor="#0E1117", plot_bgcolor="#0E1117", 
-                              font=dict(color="white"), xaxis=dict(range=[0,10]))
+        fig_bar.update_layout(height=350, paper_bgcolor=bg, plot_bgcolor=bg, 
+                              font=dict(color=text), xaxis=dict(range=[0,10]))
         st.plotly_chart(fig_bar, use_container_width=True)
     
     with colB:
         st.subheader("Consumer Price Impact")
+        st.markdown(f"<div style='background:{card};padding:1rem;border-radius:10px'>", unsafe_allow_html=True)
         st.markdown("Laptops: **+35%**")
         st.markdown("Smartphones: **+40%**")
         st.markdown("Cars: **+18%**")
         st.markdown("Gaming Consoles: **+45%**")
+        st.markdown("</div>", unsafe_allow_html=True)
         st.button("Timeline: Price changes expected in 2 weeks")
     
     # Executive Summary
@@ -102,11 +119,11 @@ with tab2:
     # 3 boxes
     b1, b2, b3 = st.columns(3)
     with b1:
-        st.markdown("<div style='border:2px solid green;padding:1rem;border-radius:5px'>Buy Opportunities<br>Automotive → 6/10</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='border:2px solid green;padding:1rem;border-radius:5px;color:{text}'>Buy Opportunities<br>Automotive → 6/10</div>", unsafe_allow_html=True)
     with b2:
-        st.markdown("<div style='border:2px solid orange;padding:1rem;border-radius:5px'>Hold<br>Pharma → 4/10</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='border:2px solid orange;padding:1rem;border-radius:5px;color:{text}'>Hold<br>Pharma → 4/10</div>", unsafe_allow_html=True)
     with b3:
-        st.markdown("<div style='border:2px solid red;padding:1rem;border-radius:5px'>Avoid - High Risk<br>Electronics → 9/10<br>Banking → 10/10</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='border:2px solid red;padding:1rem;border-radius:5px;color:{text}'>Avoid - High Risk<br>Electronics → 9/10<br>Banking → 10/10</div>", unsafe_allow_html=True)
     
     # Risk vs Opportunity Matrix
     colX, colY = st.columns([2, 1])
@@ -118,7 +135,7 @@ with tab2:
             'Opportunity': [1, 6, 4, 3, 0]
         })
         fig_scatter = px.scatter(df_scatter, x='Risk', y='Opportunity', color='Industry', size=[20]*5)
-        fig_scatter.update_layout(height=400, paper_bgcolor="#0E1117", plot_bgcolor="#0E1117", font=dict(color="white"))
+        fig_scatter.update_layout(height=400, paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text))
         st.plotly_chart(fig_scatter, use_container_width=True)
     
     with colY:
