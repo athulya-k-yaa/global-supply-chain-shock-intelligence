@@ -139,26 +139,26 @@ with col_t2:
      st.download_button("Download CSV", csv, 'risk_data.csv', 'text/csv')
 st.dataframe(df_country, use_container_width=True, hide_index=True)
 
-    colA, colB = st.columns([1.2, 0.8])
-    with colA:
-        st.subheader("Industry Risk Matrix")
-        df_ind = pd.DataFrame({'Industry': industries, 'Risk': ind_risks})
-        fig_bar = px.bar(df_ind, x='Industry', y='Risk', color='Risk', color_continuous_scale='Reds')
-        fig_bar.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=350, showlegend=False)
-        st.plotly_chart(fig_bar, use_container_width=True)
+colA, colB = st.columns([1.2, 0.8])
+with colA:
+    st.subheader("Industry Risk Matrix")
+    df_ind = pd.DataFrame({'Industry': industries, 'Risk': ind_risks})
+    fig_bar = px.bar(df_ind, x='Industry', y='Risk', color='Risk', color_continuous_scale='Reds')
+    fig_bar.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=350, showlegend=False)
+    st.plotly_chart(fig_bar, use_container_width=True)
     
-    with colB:
-        st.subheader("Consumer Price Impact")
-        st.markdown(f"<div style='background:{card}; padding:20px; border-radius:12px; border:1px solid {border}'>", unsafe_allow_html=True)
-        for p, inc in price.items():
-            st.markdown(f"{p}: <span style='color:{red}; font-weight:700'>{inc}</span>", unsafe_allow_html=True)
-        st.markdown(f"<div style='background:#1e3a8a; padding:12px; border-radius:8px; margin-top:10px'>Timeline: {timeline}</div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+with colB:
+    st.subheader("Consumer Price Impact")
+    st.markdown(f"<div style='background:{card}; padding:20px; border-radius:12px; border:1px solid {border}'>", unsafe_allow_html=True)
+     for p, inc in price.items():
+        st.markdown(f"{p}: <span style='color:{red}; font-weight:700'>{inc}</span>", unsafe_allow_html=True)
+    st.markdown(f"<div style='background:#1e3a8a; padding:12px; border-radius:8px; margin-top:10px'>Timeline: {timeline}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    with st.expander("Executive Summary & Recommendations", expanded=False):
-        top_country = countries[risks.index(max(risks))]
-        top_industry = industries[ind_risks.index(max(ind_risks))]
-        st.markdown(f"""
+ with st.expander("Executive Summary & Recommendations", expanded=False):
+     top_country = countries[risks.index(max(risks))]
+     top_industry = industries[ind_risks.index(max(ind_risks))]
+     st.markdown(f"""
 **Scenario**: {scenario1}
 
 **Key Impact**: {top_country} and {top_industry} sector face highest disruption risk
