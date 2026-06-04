@@ -5,7 +5,7 @@ import plotly.express as px
 st.set_page_config(page_title="Global Supply Chain Risk Intelligence", layout="wide")
 
 # Theme toggle
-dark = st.toggle("🌙 Dark Mode", value=True, key="theme")
+dark = st.toggle("🌙 Dark Mode", value=True, key="theme_toggle")
 bg = "#0E1117" if dark else "#FFFFFF"
 text = "#FFFFFF" if dark else "#000"
 card = "#1E2A3A" if dark else "#F0F2F6"
@@ -15,7 +15,7 @@ st.markdown(f"<style>.stApp{{background-color:{bg};}} *{{color:{text}!important;
 st.title("Global Supply Chain Risk Intelligence")
 st.markdown(f"<p style='color:{text};font-size:18px'>Impact Analysis for Businesses, Consumers & Investors</p>", unsafe_allow_html=True)
 
-# Scenario + Compare Mode with unique keys
+# Scenario + Compare Mode
 col1, col2 = st.columns([3, 1])
 with col1:
     scenario1 = st.selectbox("Select Shock Scenario", ["Taiwan Chip Ban 40%", "Red Sea Crisis", "US-China Tariffs"], key="s1")
@@ -65,19 +65,19 @@ data = {
 def show_tab1(scenario_name, suffix=""):
     d = data[scenario_name]
     
-    # Metrics
+    # FIXED: Removed key from metrics - Streamlit Cloud error
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("INDUSTRIES IMPACTED", f"{d['industries_count']}/5", key=f"m1{suffix}")
-    m2.metric("REVENUE AT RISK", d['revenue'], key=f"m2{suffix}")
-    m3.metric("COUNTRIES AFFECTED", d['countries_count'], key=f"m3{suffix}")
-    m4.metric("RISK SCORE", f"{d['risk_score']}/10", "↑ Critical", delta_color="inverse", key=f"m4{suffix}")
+    m1.metric("INDUSTRIES IMPACTED", f"{d['industries_count']}/5")
+    m2.metric("REVENUE AT RISK", d['revenue'])
+    m3.metric("COUNTRIES AFFECTED", d['countries_count'])
+    m4.metric("RISK SCORE", f"{d['risk_score']}/10", "↑ Critical", delta_color="inverse")
     
-    # MAP - FIXED with natural earth
-    st.subheader(f"Supply Chain Risk Map - Countries {suffix}")
+    # MAP - GUARANTEED VISIBLE
+    st.subheader(f"Supply Chain Risk Map {suffix}")
     df_map = pd.DataFrame({'Country': d['countries'], 'Code': d['codes'], 'Risk': d['c_risks']})
     fig_map = px.choropleth(df_map, locations='Code', color='Risk', hover_name='Country',
-                            locationmode='ISO-3', color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'], range_color=(0,10))
-    fig_map.update_geos(showcountries=True, countrycolor=text, showcoastlines=True, coastlinecolor=text, projection_type="natural earth")
+                            locationmode='ISO-3', color_continuous_scale='Reds', range_color=(0,10))
+    fig_map.update_geos(showcountries=True, countrycolor=text, showcoastlines=True, coastlinecolor=text)
     fig_map.update_layout(height=450, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text, size=16))
     st.plotly_chart(fig_map, use_container_width=True, key=f"map{suffix}")
     
