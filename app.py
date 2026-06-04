@@ -62,7 +62,7 @@ data = {
         'i_risks': [10, 9, 7, 6, 4],
         'prices': {'Laptops': '+35%', 'Smartphones': '+40%', 'Cars': '+18%', 'Gaming Consoles': '+45%'},
         'summary': 'China and Banking sector face highest risk. $420B revenue at risk across 18 countries.',
-        'recommendations': ['Diversify supplier base away from Taiwan/China', 'Increase 60-day inventory buffer', 'Implement dynamic pricing', 'Monitor secondary markets']
+        'recommendations': ['Diversify supplier base away from Taiwan/China', 'Increase 60-day inventory buffer', 'Implement dynamic pricing', 'Monitor secondary markets'],
         'summary': '60% global chip supply disrupted. Electronics and Automotive hit hardest.',
         'recommendations': ['Diversify chip sourcing to Samsung/Intel', 'Increase 90-day inventory', 'Redesign products for mature nodes']
     },
