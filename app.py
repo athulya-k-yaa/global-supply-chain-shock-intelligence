@@ -138,29 +138,27 @@ with tab1:
 # Safe map - works even without CSV file
 try:
     map_df = pd.DataFrame({
+        'iso_code': ['USA', 'CHN', 'IND', 'DEU', 'BRA', 'JPN', 'GBR', 'CAN'],
         'country': ['United States', 'China', 'India', 'Germany', 'Brazil', 'Japan', 'UK', 'Canada'],
         'risk_score': [8.5, 9.1, 7.2, 6.8, 7.9, 8.2, 7.5, 6.9],
         'revenue_at_risk': [120, 95, 60, 45, 38, 32, 28, 22]
     })
-    
-    fig = px.choropleth(map_df, 
-                        locations="country",
-                        locationmode="country names",
+
+    fig = px.choropleth(map_df,
+                        locations="iso_code",
                         color="risk_score",
+                        hover_name="country",
                         hover_data=["revenue_at_risk"],
                         color_continuous_scale="Reds",
+                        range_color=[0, 10],
                         title="Supply Chain Risk Map")
     
-    fig.update_layout(margin={"r":0,"t":30,"l":0,"b":0})
+    fig.update_layout(margin={"r":0,"t":30,"l":0,"b":0}, height=400)
     st.plotly_chart(fig, use_container_width=True)
-    
+
 except Exception as e:
     st.error(f"Map error: {e}")
-    st.info("Map will show sample data. Connect your real data later.")
-       
-    
-    
-        
+    st.dataframe(map_df)  # Shows table if map fails
 
     # COUNTRY TABLE
     st.subheader("Country Risk Breakdown")
