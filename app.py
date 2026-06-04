@@ -167,13 +167,13 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 # COUNTRY TABLE
-    st.subheader("Country Risk Breakdown")
-    df_country = pd.DataFrame({
-        'Country': countries,
-        'Risk Score': risks,
-        'Risk Level': ['Critical' if r>=9 else 'High' if r>=7 else 'Medium' if r>=5 else 'Low' for r in risks]
-    })
-    csv = df_country.to_csv(index=False).encode('utf-8')
+st.subheader("Country Risk Breakdown")
+df_country = pd.DataFrame({
+'Country': countries,
+'Risk Score': risks,
+'Risk Level': ['Critical' if r>=9 else 'High' if r>=7 else 'Medium' if r>=5 else 'Low' for r in risks]
+})
+csv = df_country.to_csv(index=False).encode('utf-8')
     col_t1, col_t2 = st.columns([5, 1])
     with col_t2: 
         st.download_button("Download CSV", csv, f'risk_data.csv', 'text/csv', use_container_width=True)
