@@ -174,10 +174,10 @@ df_country = pd.DataFrame({
 'Risk Level': ['Critical' if r>=9 else 'High' if r>=7 else 'Medium' if r>=5 else 'Low' for r in risks]
 })
 csv = df_country.to_csv(index=False).encode('utf-8')
-    col_t1, col_t2 = st.columns([5, 1])
-    with col_t2: 
-        st.download_button("Download CSV", csv, f'risk_data.csv', 'text/csv', use_container_width=True)
-    st.dataframe(df_country, use_container_width=True, hide_index=True, height=280)
+col_t1, col_t2 = st.columns([5, 1])
+with col_t2: 
+st.download_button("Download CSV", csv, f'risk_data.csv', 'text/csv', use_container_width=True)
+st.dataframe(df_country, use_container_width=True, hide_index=True, height=280)
 
     # INDUSTRY + CONSUMER - NO METHODOLOGY HERE
     colA, colB = st.columns([1.2, 0.8])
