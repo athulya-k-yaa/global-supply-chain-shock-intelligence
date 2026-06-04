@@ -127,17 +127,17 @@ fig_map.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), 
                       geo=dict(bgcolor=map_bg, landcolor=map_land, showframe=False, showcoastlines=True))
 st.plotly_chart(fig_map, use_container_width=True)
 
-    st.subheader("Country Risk Breakdown")
-    df_country = pd.DataFrame({
-        'Country': countries,
-        'Risk Score': risks,
-        'Risk Level': ['Critical' if r >= 8 else 'High' if r >= 6 else 'Medium' for r in risks]
-    })
-    csv = df_country.to_csv(index=False).encode('utf-8')
-    col_t1, col_t2 = st.columns([5, 1])
-    with col_t2:
-        st.download_button("Download CSV", csv, 'risk_data.csv', 'text/csv')
-    st.dataframe(df_country, use_container_width=True, hide_index=True)
+st.subheader("Country Risk Breakdown")
+df_country = pd.DataFrame({
+   'Country': countries,
+   'Risk Score': risks,
+   'Risk Level': ['Critical' if r >= 8 else 'High' if r >= 6 else 'Medium' for r in risks]
+})
+csv = df_country.to_csv(index=False).encode('utf-8')
+col_t1, col_t2 = st.columns([5, 1])
+with col_t2:
+     st.download_button("Download CSV", csv, 'risk_data.csv', 'text/csv')
+st.dataframe(df_country, use_container_width=True, hide_index=True)
 
     colA, colB = st.columns([1.2, 0.8])
     with colA:
