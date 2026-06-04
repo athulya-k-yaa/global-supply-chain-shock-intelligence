@@ -5,30 +5,30 @@ import plotly.express as px
 st.set_page_config(page_title="Global Supply Chain Risk Intelligence", layout="wide")
 
 # Theme toggle
-dark = st.toggle("🌙 Dark Mode", value=True)
+dark = st.toggle("🌙 Dark Mode", value=True, key="theme")
 bg = "#0E1117" if dark else "#FFFFFF"
 text = "#FFFFFF" if dark else "#000"
 card = "#1E2A3A" if dark else "#F0F2F6"
 
-st.markdown(f"""<style>.stApp{{background-color:{bg};}} *{{color:{text}!important;}} h1,h2,h3{{color:{text}!important;}} [data-testid="stMetricValue"]{{font-size:2.5rem;color:{text}!important;}}</style>""", unsafe_allow_html=True)
+st.markdown(f"<style>.stApp{{background-color:{bg};}} *{{color:{text}!important;}} h1,h2,h3{{color:{text}!important;}} [data-testid='stMetricValue']{{font-size:2.5rem;color:{text}!important;}}</style>", unsafe_allow_html=True)
 
 st.title("Global Supply Chain Risk Intelligence")
 st.markdown(f"<p style='color:{text};font-size:18px'>Impact Analysis for Businesses, Consumers & Investors</p>", unsafe_allow_html=True)
 
-# Scenario + Compare Mode
+# Scenario + Compare Mode with unique keys
 col1, col2 = st.columns([3, 1])
 with col1:
-    scenario1 = st.selectbox("Select Shock Scenario", ["Taiwan Chip Ban 40%", "Red Sea Crisis", "US-China Tariffs"])
+    scenario1 = st.selectbox("Select Shock Scenario", ["Taiwan Chip Ban 40%", "Red Sea Crisis", "US-China Tariffs"], key="s1")
 with col2:
-    compare_mode = st.toggle("Compare Mode")
+    compare_mode = st.toggle("Compare Mode", key="cmp")
 
 if compare_mode:
-    scenario2 = st.selectbox("Compare With", ["Red Sea Crisis", "US-China Tariffs", "Taiwan Chip Ban 40%"], index=1)
+    scenario2 = st.selectbox("Compare With", ["Red Sea Crisis", "US-China Tariffs", "Taiwan Chip Ban 40%"], index=1, key="s2")
 
 # Data
 data = {
     "Taiwan Chip Ban 40%": {
-        'countries': ['Taiwan', 'China', 'USA', 'Germany', 'Japan', 'India', 'Vietnam'],
+        'countries': ['Taiwan', 'China', 'United States', 'Germany', 'Japan', 'India', 'Vietnam'],
         'codes': ['TWN', 'CHN', 'USA', 'DEU', 'JPN', 'IND', 'VNM'],
         'c_risks': [9, 10, 7, 6, 8, 5, 4],
         'revenue': '$420B', 'countries_count': 18, 'industries_count': 3, 'risk_score': 9.1,
@@ -39,7 +39,7 @@ data = {
         'recommendations': ['Diversify supplier base away from Taiwan/China', 'Increase 60-day inventory buffer', 'Implement dynamic pricing', 'Monitor secondary markets']
     },
     "Red Sea Crisis": {
-        'countries': ['China', 'India', 'Germany', 'USA', 'Japan'],
+        'countries': ['China', 'India', 'Germany', 'United States', 'Japan'],
         'codes': ['CHN', 'IND', 'DEU', 'USA', 'JPN'],
         'c_risks': [9, 8, 7, 6, 7],
         'revenue': '$280B', 'countries_count': 14, 'industries_count': 4, 'risk_score': 7.8,
@@ -50,7 +50,7 @@ data = {
         'recommendations': ['Reroute via Cape of Good Hope', 'Build regional warehouses', 'Negotiate air freight contracts']
     },
     "US-China Tariffs": {
-        'countries': ['China', 'USA', 'Vietnam', 'Mexico', 'India'],
+        'countries': ['China', 'United States', 'Vietnam', 'Mexico', 'India'],
         'codes': ['CHN', 'USA', 'VNM', 'MEX', 'IND'],
         'c_risks': [9, 7, 8, 7, 6],
         'revenue': '$350B', 'countries_count': 12, 'industries_count': 5, 'risk_score': 8.2,
@@ -62,65 +62,63 @@ data = {
     }
 }
 
-def show_tab1(scenario_name):
+def show_tab1(scenario_name, suffix=""):
     d = data[scenario_name]
     
-    # 4 Metrics
+    # Metrics
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("INDUSTRIES IMPACTED", f"{d['industries_count']}/5", "↑ from baseline")
-    m2.metric("REVENUE AT RISK", d['revenue'])
-    m3.metric("COUNTRIES AFFECTED", d['countries_count'])
-    m4.metric("RISK SCORE", f"{d['risk_score']}/10", "↑ Critical", delta_color="inverse")
+    m1.metric("INDUSTRIES IMPACTED", f"{d['industries_count']}/5", key=f"m1{suffix}")
+    m2.metric("REVENUE AT RISK", d['revenue'], key=f"m2{suffix}")
+    m3.metric("COUNTRIES AFFECTED", d['countries_count'], key=f"m3{suffix}")
+    m4.metric("RISK SCORE", f"{d['risk_score']}/10", "↑ Critical", delta_color="inverse", key=f"m4{suffix}")
     
-    # 1. COUNTRIES RISK MAP
-    st.subheader("1. Supply Chain Risk Map - Countries")
+    # MAP - FIXED with natural earth
+    st.subheader(f"Supply Chain Risk Map - Countries {suffix}")
     df_map = pd.DataFrame({'Country': d['countries'], 'Code': d['codes'], 'Risk': d['c_risks']})
     fig_map = px.choropleth(df_map, locations='Code', color='Risk', hover_name='Country',
-                            color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'], range_color=(0,10))
-    fig_map.update_geos(showcountries=True, countrycolor=text, showcoastlines=True, coastlinecolor=text)
-    fig_map.update_layout(height=500, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text, size=16))
-    st.plotly_chart(fig_map, use_container_width=True)
+                            locationmode='ISO-3', color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'], range_color=(0,10))
+    fig_map.update_geos(showcountries=True, countrycolor=text, showcoastlines=True, coastlinecolor=text, projection_type="natural earth")
+    fig_map.update_layout(height=450, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text, size=16))
+    st.plotly_chart(fig_map, use_container_width=True, key=f"map{suffix}")
     
-    # COUNTRIES RISK TABLE
-    st.subheader("Country Risk Breakdown")
+    # Country Table
+    st.subheader(f"Country Risk Breakdown {suffix}")
     df_country = pd.DataFrame({
         'Country': d['countries'],
         'Risk Score': d['c_risks'],
         'Risk Level': ['Critical' if r>=9 else 'High' if r>=7 else 'Medium' if r>=4 else 'Low' for r in d['c_risks']]
     })
-    st.dataframe(df_country, use_container_width=True, hide_index=True)
+    st.dataframe(df_country, use_container_width=True, hide_index=True, key=f"table{suffix}")
     
-    # 2. INDUSTRY RISK + 3. CONSUMER PRICE
+    # Industry + Price
     colA, colB = st.columns([1.5, 1])
     with colA:
-        st.subheader("2. Industry Risk Score")
+        st.subheader(f"Industry Risk Score {suffix}")
         df_ind = pd.DataFrame({'Industry': d['industries'], 'Risk': d['i_risks']})
         fig_bar = px.bar(df_ind, x='Risk', y='Industry', orientation='h', color='Risk', color_continuous_scale='Reds')
         fig_bar.update_layout(height=350, paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text, size=16), xaxis=dict(range=[0,10]))
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True, key=f"bar{suffix}")
     
     with colB:
-        st.subheader("3. Consumer Price Impact")
+        st.subheader(f"Consumer Price Impact {suffix}")
         st.markdown(f"<div style='background:{card};padding:1.5rem;border-radius:10px'>", unsafe_allow_html=True)
         for item, price in d['prices'].items():
             st.markdown(f"<p style='color:{text};font-size:18px;margin:10px 0'>{item}: <b>{price}</b></p>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-        st.button("Timeline: Price changes expected in 2 weeks")
     
-    # 4. EXECUTIVE SUMMARY + RECOMMENDATIONS
-    with st.expander("4. Executive Summary & Recommendations", expanded=True):
+    # Summary
+    with st.expander(f"Executive Summary & Recommendations {suffix}", expanded=True):
         st.markdown(f"<p style='color:{text};font-size:16px'><b>Scenario:</b> {scenario_name}</p>", unsafe_allow_html=True)
         st.markdown(f"<p style='color:{text};font-size:16px'><b>Key Impact:</b> {d['summary']}</p>", unsafe_allow_html=True)
         st.markdown(f"<p style='color:{text};font-size:16px'><b>Recommendations:</b></p>", unsafe_allow_html=True)
         for i, rec in enumerate(d['recommendations'], 1):
             st.markdown(f"<p style='color:{text};font-size:16px'>{i}. {rec}</p>", unsafe_allow_html=True)
 
-def show_tab2(scenario_name):
+def show_tab2(scenario_name, suffix=""):
     d = data[scenario_name]
-    st.subheader(f"Investment Intelligence - {scenario_name}")
+    st.subheader(f"Investment Intelligence - {scenario_name} {suffix}")
     
-    # 5. INVESTMENT INTELLIGENCE - 3 Boxes
-    st.subheader("5. Investment Intelligence")
+    # Investment boxes
     b1, b2, b3 = st.columns(3)
     with b1:
         st.markdown(f"<div style='border:2px solid #00FF00;padding:1rem;border-radius:8px'><p style='color:{text};font-size:16px'>Buy Opportunities<br><b>Automotive → 6/10</b></p></div>", unsafe_allow_html=True)
@@ -129,24 +127,21 @@ def show_tab2(scenario_name):
     with b3:
         st.markdown(f"<div style='border:2px solid red;padding:1rem;border-radius:8px'><p style='color:{text};font-size:16px'>Avoid - High Risk<br><b>Electronics → 9/10<br>Banking → 10/10</b></p></div>", unsafe_allow_html=True)
     
-    # 6. RISK VS OPPORTUNITY MATRIX
+    # Risk vs Opportunity
     colX, colY = st.columns([2, 1])
     with colX:
-        st.subheader("6. Risk vs Opportunity Matrix")
+        st.subheader(f"Risk vs Opportunity Matrix {suffix}")
         df_scatter = pd.DataFrame({
             'Industry': d['industries'],
             'Risk': d['i_risks'],
             'Opportunity': [0, 1, 3, 4, 6]
         })
-        fig_scatter = px.scatter(df_scatter, x='Risk', y='Opportunity', color='Industry', size=[25]*5, size_max=30)
+        fig_scatter = px.scatter(df_scatter, x='Risk', y='Opportunity', color='Industry', size=[25]*5)
         fig_scatter.update_layout(height=400, paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text, size=16))
-        fig_scatter.update_xaxes(range=[0,11])
-        fig_scatter.update_yaxes(range=[-1,7])
-        st.plotly_chart(fig_scatter, use_container_width=True)
+        st.plotly_chart(fig_scatter, use_container_width=True, key=f"scatter{suffix}")
     
-    # 7. INVESTMENT GUIDANCE
     with colY:
-        st.subheader("7. Investment Guidance")
+        st.subheader(f"Investment Guidance {suffix}")
         st.markdown(f"<p style='color:{text};font-size:16px'>Reduce exposure: Electronics, Banking</p>", unsafe_allow_html=True)
         st.markdown(f"<p style='color:{text};font-size:16px'>Consider increasing: Automotive</p>", unsafe_allow_html=True)
         st.warning("For demonstration purposes only. Not financial advice")
@@ -158,21 +153,24 @@ with tab1:
     if compare_mode:
         c1, c2 = st.columns(2)
         with c1:
-            show_tab1(scenario1)
+            show_tab1(scenario1, suffix="_A")
         with c2:
-            show_tab1(scenario2)
+            show_tab1(scenario2, suffix="_B")
     else:
         show_tab1(scenario1)
 
 with tab2:
-    show_tab2(scenario1)
+    if compare_mode:
+        c1, c2 = st.columns(2)
+        with c1:
+            show_tab2(scenario1, suffix="_A")
+        with c2:
+            show_tab2(scenario2, suffix="_B")
+    else:
+        show_tab2(scenario1)
 
-# 8. METHODOLOGY & ASSUMPTIONS
-with st.expander("8. Methodology & Assumptions", expanded=False):
-    st.markdown(f"<h3 style='color:{text}'>How Risk Scores Are Calculated</h3>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color:{text};font-size:16px'><b>1. Risk Formula:</b> Risk = 0.4×Supplier Concentration + 0.3×Geopolitical Stability + 0.2×Trade Dependency + 0.1×Logistics Bottlenecks</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color:{text};font-size:16px'><b>2. Data Sources:</b> UN Comtrade, World Bank Governance, GDELT Events, Lloyd's Shipping</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color:{text};font-size:16px'><b>3. Assumptions:</b> >40% supply from 1 country = +3 Risk | 2-week delay = +1 Risk | 30-day inventory = -2 Risk</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color:{text};font-size:16px'><b>4. Risk Levels:</b> 0-3 Low | 4-6 Medium | 7-8 High | 9-10 Critical</p>", unsafe_allow_html=True)
-
-st.success("✅ All 8 sections loaded: Countries, Industry, Consumer Price, Summary, Investment, Risk vs Opportunity, Guidance, Methodology")
+# Methodology
+with st.expander("Methodology & Assumptions", expanded=False):
+    st.markdown(f"<p style='color:{text};font-size:16px'><b>Risk Formula:</b> Risk = 0.4×Supplier Concentration + 0.3×Geopolitical Stability + 0.2×Trade Dependency + 0.1×Logistics</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:{text};font-size:16px'><b>Data Sources:</b> UN Comtrade, World Bank Governance, GDELT Events</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:{text};font-size:16px'><b>Assumptions:</b> >40% supply from 1 country = +3 Risk | 30-day inventory = -2 Risk</p>", unsafe_allow_html=True)
