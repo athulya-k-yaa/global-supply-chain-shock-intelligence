@@ -76,6 +76,7 @@ data = {
         'prices': {'Shipping': '+25%', 'Cars': '+12%', 'Clothing': '+20%', 'Electronics': '+15%'},
         'summary': 'Shipping delays increase costs. Textile and Automotive most affected.',
         'recommendations': ['Reroute via Cape of Good Hope', 'Build regional warehouses', 'Negotiate air freight contracts']
+    },
     "China Rare Earth Ban": {
         'countries': ['China', 'United States', 'Japan', 'Germany', 'India'],
         'risks': [10, 8, 9, 7, 6],
