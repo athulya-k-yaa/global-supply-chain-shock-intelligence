@@ -11,73 +11,61 @@ if theme_mode:
     bg = "#0E1117"
     text = "white"
     card = "#1E2A3A"
-    land = "#1E2A3A"
 else:
     bg = "#FFFFFF"
     text = "black"
     card = "#F0F2F6"
-    land = "#E0E0E0"
 
-# Theme CSS
 st.markdown(f"""
 <style>
 .stApp {{background-color: {bg}; color: {text};}}
 [data-testid="stMetricValue"] {{font-size: 2rem; font-weight: bold; color: {text};}}
-[data-testid="stMetricLabel"] {{color: #A0A0A0; text-transform: uppercase; font-size: 0.8rem;}}
 </style>
 """, unsafe_allow_html=True)
 
-# Header
 st.title("Global Supply Chain Risk Intelligence")
 st.markdown("Impact Analysis for Businesses, Consumers & Investors")
 
-# Scenario + Compare Mode
 col1, col2 = st.columns([4, 1])
 with col1:
     scenario = st.selectbox("Select Shock Scenario", ["Semiconductor Shock - Taiwan 40%"])
 with col2:
     compare_mode = st.toggle("Compare Mode")
 
-# Tabs
 tab1, tab2 = st.tabs(["Supply Chain Risk", "Investment Intelligence"])
 
 with tab1:
-    # 4 Metrics
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("INDUSTRIES IMPACTED", "3/5", "↑ 0% from baseline")
     m2.metric("REVENUE AT RISK", "$420B")
     m3.metric("COUNTRIES AFFECTED", "18")
     m4.metric("RISK SCORE", "9.1/10", "↑ Critical", delta_color="inverse")
     
-    # MAP - FIXED for visibility
+    # MAP - CHOROPLETH FIXED - WILL SHOW FOR SURE
     st.subheader("Supply Chain Risk Map")
     df_map = pd.DataFrame({
-        'Country': ['USA', 'Germany', 'China', 'Taiwan', 'India', 'Japan', 'Vietnam'],
-        'Risk': [7, 6, 10, 9, 5, 8, 4],
-        'Lat': [37.09, 51.16, 35.86, 23.69, 20.59, 36.20, 14.05],
-        'Lon': [-95.71, 10.45, 104.19, 120.96, 78.96, 138.25, 108.28]
+        'Country': ['United States', 'Germany', 'China', 'Taiwan', 'India', 'Japan', 'Vietnam'],
+        'Code': ['USA', 'DEU', 'CHN', 'TWN', 'IND', 'JPN', 'VNM'], # ISO-3 codes required
+        'Risk': [7, 6, 10, 9, 5, 8, 4]
     })
     
-    fig_map = px.scatter_geo(df_map, lat='Lat', lon='Lon', size='Risk', color='Risk',
-                             hover_name='Country', size_max=50,
-                             color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'])
-    fig_map.update_geos(projection_type="natural earth", showland=True, landcolor=land,
-                        showocean=True, oceancolor=bg, showcountries=True, 
-                        countrycolor=text, coastlinecolor=text)
+    fig_map = px.choropleth(df_map, 
+                            locations='Code',
+                            color='Risk',
+                            hover_name='Country',
+                            color_continuous_scale=['#FFD700', '#FFA500', '#FF4B4B'],
+                            range_color=(0, 10),
+                            labels={'Risk': 'Risk Score'})
+    
+    fig_map.update_geos(showcountries=True, countrycolor=text, showcoastlines=True, coastlinecolor=text)
     fig_map.update_layout(height=500, margin=dict(l=0,r=0,t=0,b=0), 
-                          paper_bgcolor=bg, font=dict(color=text))
+                          paper_bgcolor=bg, plot_bgcolor=bg, font=dict(color=text))
     st.plotly_chart(fig_map, use_container_width=True)
     
-    # Country Risk Breakdown Table
     st.subheader("Country Risk Breakdown")
-    df_country = pd.DataFrame({
-        'Country': ['Taiwan', 'China', 'USA', 'Germany', 'India', 'Japan', 'Vietnam'],
-        'Risk Score': [9, 10, 7, 6, 5, 8, 4],
-        'Risk Level': ['Critical', 'Critical', 'High', 'Medium', 'Medium', 'High', 'Low']
-    })
-    st.dataframe(df_country, use_container_width=True, hide_index=True)
+    st.dataframe(df_map[['Country', 'Risk']].rename(columns={'Risk': 'Risk Score'}), 
+                 use_container_width=True, hide_index=True)
     
-    # Industry + Price columns
     colA, colB = st.columns([1.5, 1])
     with colA:
         st.subheader("Industry Risk Score")
@@ -93,7 +81,7 @@ with tab1:
     
     with colB:
         st.subheader("Consumer Price Impact")
-        st.markdown(f"<div style='background:{card};padding:1rem;border-radius:10px'>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background:{card};padding:1rem;border-radius:10px;color:{text}'>", unsafe_allow_html=True)
         st.markdown("Laptops: **+35%**")
         st.markdown("Smartphones: **+40%**")
         st.markdown("Cars: **+18%**")
@@ -101,7 +89,6 @@ with tab1:
         st.markdown("</div>", unsafe_allow_html=True)
         st.button("Timeline: Price changes expected in 2 weeks")
     
-    # Executive Summary
     with st.expander("Executive Summary & Recommendations", expanded=True):
         st.markdown("**Scenario:** Semiconductor Shock - Taiwan 40%")
         st.markdown("**Key Impact:** China and Banking sector face highest risk at 10/10 and 10/10 respectively.")
@@ -116,7 +103,6 @@ with tab2:
     st.subheader("Investment Intelligence")
     st.markdown(f"Analysis for: {scenario}")
     
-    # 3 boxes
     b1, b2, b3 = st.columns(3)
     with b1:
         st.markdown(f"<div style='border:2px solid green;padding:1rem;border-radius:5px;color:{text}'>Buy Opportunities<br>Automotive → 6/10</div>", unsafe_allow_html=True)
@@ -125,7 +111,6 @@ with tab2:
     with b3:
         st.markdown(f"<div style='border:2px solid red;padding:1rem;border-radius:5px;color:{text}'>Avoid - High Risk<br>Electronics → 9/10<br>Banking → 10/10</div>", unsafe_allow_html=True)
     
-    # Risk vs Opportunity Matrix
     colX, colY = st.columns([2, 1])
     with colX:
         st.subheader("Risk vs Opportunity Matrix")
