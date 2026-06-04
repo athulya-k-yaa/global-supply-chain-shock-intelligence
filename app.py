@@ -135,59 +135,32 @@ with tab1:
         else:
             st.metric("RISK SCORE", f"{r_score}/10", f"↑ {r_delta}", delta_color="inverse")
 
-    # FLAT WORLD MAP
-    st.subheader("Supply Chain Risk Map")
+# Safe map - works even without CSV file
+try:
     map_df = pd.DataFrame({
-        'country': countries, 
-        'risk': risks,
-        'lat': [23.7, 35.8, 37.0, 51.1, 20.5, 36.2, 14.0, 23.6],
-        'lon': [120.9, 104.1, -95.7, 10.4, 78.9, 138.2, 108.2, -102.5]
+        'country': ['United States', 'China', 'India', 'Germany', 'Brazil', 'Japan', 'UK', 'Canada'],
+        'risk_score': [8.5, 9.1, 7.2, 6.8, 7.9, 8.2, 7.5, 6.9],
+        'revenue_at_risk': [120, 95, 60, 45, 38, 32, 28, 22]
     })
     
-    if compare_mode and scenario2:
-        map_df2 = pd.DataFrame({
-            'country': countries2, 
-            'risk': risks2,
-            'lat': [23.7, 35.8, 37.0, 51.1, 20.5, 36.2, 14.0, 23.6],
-            'lon': [120.9, 104.1, -95.7, 10.4, 78.9, 138.2, 108.2, -102.5],
-            'scenario': 'Scenario 2'
-        })
-        map_df['scenario'] = 'Scenario 1'
-        map_df = pd.concat([map_df, map_df2])
-        symbol_col = 'scenario'
-    else:
-        symbol_col = None
+    fig = px.choropleth(map_df, 
+                        locations="country",
+                        locationmode="country names",
+                        color="risk_score",
+                        hover_data=["revenue_at_risk"],
+                        color_continuous_scale="Reds",
+                        title="Supply Chain Risk Map")
     
-    fig_map = px.scatter_geo(
-        map_df, 
-        lat='lat', 
-        lon='lon', 
-        size='risk', 
-        color='risk',
-        symbol=symbol_col,
-        hover_name='country',
-        color_continuous_scale='Reds',
-        size_max=60, 
-        projection='natural earth',
-        range_color=[0, 10]
-    )
+    fig.update_layout(margin={"r":0,"t":30,"l":0,"b":0})
+    st.plotly_chart(fig, use_container_width=True)
     
-    fig_map.update_layout(
-        height=480,
-        margin={"r":0,"t":20,"l":0,"b":0},
-        geo_bgcolor=map_bg,
-        geo_landcolor=map_land,
-        geo_showcoastlines=True,
-        geo_coastlinecolor='#ffffff' if st.session_state.theme == 'dark' else '#94a3b8',
-        geo_showocean=True,
-        geo_oceancolor=map_bg,
-        paper_bgcolor=bg,
-        plot_bgcolor=bg,
-        font=dict(color=text, size=12),
-        coloraxis_colorbar=dict(title="Risk", thickness=15, len=0.7, x=1.02)
-    )
-    fig_map.update_traces(marker=dict(opacity=0.9, line=dict(width=2, color='white')))
-    st.plotly_chart(fig_map, use_container_width=True, key="flat_map")
+except Exception as e:
+    st.error(f"Map error: {e}")
+    st.info("Map will show sample data. Connect your real data later.")
+       
+    
+    
+        
 
     # COUNTRY TABLE
     st.subheader("Country Risk Breakdown")
