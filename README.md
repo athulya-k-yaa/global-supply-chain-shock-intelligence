@@ -1,6 +1,6 @@
 # Global Supply Chain Risk Intelligence
 
-**Live Demo:** https://global-supply-chain-shock-intelligence-fcwqdcae7ky2juokx49jr.streamlit.app
+**Live Demo:** https://global-supply-chain-shock-intelligence-fcwqdcae7tky2juokx49jr.streamlit.app/
 
 **Problem:** Geopolitical shocks disrupt supply chains. Companies need instant visibility on risk.
 
