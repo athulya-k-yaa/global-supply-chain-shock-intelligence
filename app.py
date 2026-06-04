@@ -4,8 +4,8 @@ import plotly.express as px
 
 st.set_page_config(page_title="Global Supply Chain Risk Intelligence", layout="wide")
 
-# Theme
-dark = st.toggle("🌙 Dark Mode", value=True, key="theme_toggle")
+# Theme - DEFAULT WHITE MODE
+dark = st.toggle("🌙 Dark Mode", value=False, key="theme_toggle")
 bg = "#0E1117" if dark else "#FFFFFF"
 text = "#FFFFFF" if dark else "#000"
 card = "#1E2A3A" if dark else "#F0F2F6"
@@ -37,7 +37,7 @@ if compare_mode:
                              ["China Rare Earth Ban", "Oil Price Shock $150", "US-China Tariffs 25%", "Taiwan Semiconductor Ban"], 
                              index=1, key="s2")
 
-# Clean data - no duplicates, all commas present
+# Data for 4 scenarios
 data = {
     "Taiwan Semiconductor Ban": {
         'countries': ['Taiwan', 'China', 'United States of America', 'Germany', 'Japan', 'India', 'Vietnam'],
