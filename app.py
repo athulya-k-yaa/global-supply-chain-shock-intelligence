@@ -134,34 +134,37 @@ with tab1:
             st.metric("RISK SCORE", f"{r_score}/10", f"vs {r_score2}/10 {delta_score:+.1f}", delta_color="inverse")
         else:
             st.metric("RISK SCORE", f"{r_score}/10", f"↑ {r_delta}", delta_color="inverse")
-            
+
+import plotly.express as px
+import pandas as pd
+
 st.subheader("Supply Chain Risk Map")
 
-# Bulletproof: Always has data, always renders
-map_df = pd.DataFrame({
-    'iso_code': ['USA', 'CHN', 'IND', 'DEU', 'BRA', 'JPN', 'GBR', 'CAN', 'AUS', 'FRA'],
-    'country': ['United States', 'China', 'India', 'Germany', 'Brazil', 'Japan', 'UK', 'Canada', 'Australia', 'France'],
-    'risk_score': [8.5, 9.1, 7.2, 6.8, 7.9, 8.2, 7.5, 6.9, 7.1, 6.5],
-    'revenue_at_risk': [120, 95, 60, 45, 38, 32, 28, 22, 18, 15]
+# Dummy data - same bubbles as your laptop screenshot
+df = pd.DataFrame({
+    'country': ['USA', 'Canada', 'Mexico', 'Germany', 'France', 'UK', 'China', 'Japan', 'India', 'Brazil'],
+    'lat': [37.09, 56.13, 23.63, 51.16, 46.22, 55.37, 35.86, 36.20, 20.59, -14.23],
+    'lon': [-95.71, -106.34, -102.55, 10.45, 2.21, -3.43, 104.19, 138.25, 78.96, -51.92],
+    'risk_score': [8.5, 6.9, 7.3, 6.8, 6.5, 7.5, 9.1, 8.2, 7.2, 7.9],
+    'revenue': [120, 22, 18, 45, 15, 28, 95, 32, 60, 38]
 })
 
-try:
-    fig = px.choropleth(map_df,
-                        locations="iso_code",
-                        color="risk_score",
-                        hover_name="country",
-                        hover_data=["revenue_at_risk"],
-                        color_continuous_scale="Reds",
-                        range_color=[0, 10],
-                        title="Supply Chain Risk Map")
-    fig.update_geos(showocean=True, oceancolor="LightBlue")
-    fig.update_layout(margin={"r":0,"t":40,"l":0,"b":0}, height=450)
-    st.plotly_chart(fig, use_container_width=True)
-    
-except Exception as e:
-    st.warning("Map loading sample data...")
-    st.dataframe(map_df, use_container_width=True)  # Fallback table
+fig = px.scatter_geo(df,
+                     lat='lat',
+                     lon='lon',
+                     size='risk_score',
+                     color='risk_score',
+                     hover_name='country',
+                     hover_data=['revenue'],
+                     color_continuous_scale="Reds",
+                     range_color=[0, 10],
+                     projection="natural earth",
+                     title="Supply Chain Risk Map")
 
+fig.update_geos(showocean=True, oceancolor="rgb(10,10,30)", showland=True, landcolor="rgb(20,20,20)")
+fig.update_layout(margin={"r":0,"t":40,"l":0,"b":0}, height=450, paper_bgcolor="black")
+st.plotly_chart(fig, use_container_width=True)
+   
     # COUNTRY TABLE
     st.subheader("Country Risk Breakdown")
     df_country = pd.DataFrame({
