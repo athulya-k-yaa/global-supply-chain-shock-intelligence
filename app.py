@@ -116,11 +116,16 @@ with tab1:
         st.metric("RISK SCORE", f"{r_score}/10", f"+{r_delta}")
 
     st.subheader("Geographic Risk Heatmap")
-    df_map = pd.DataFrame({'Country': countries, 'Risk': risks})
-    fig_map = px.choropleth(df_map, locations='Country', locationmode='country names', color='Risk', 
-                            color_continuous_scale='Reds', range_color=[0, 10])
-    fig_map.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=450, geo=dict(bgcolor=map_bg, landcolor=map_land))
-    st.plotly_chart(fig_map, use_container_width=True)
+    df_map = pd.DataFrame({
+    'Country': ["Taiwan", "China", "Vietnam", "Mexico", "Germany", "United States", "India", "Japan", 
+                "South Korea", "Thailand", "Malaysia", "Singapore", "Brazil", "United Kingdom", "France", "Canada"],
+    'Risk': risks
+})
+fig_map = px.choropleth(df_map, locations='Country', locationmode='country names', color='Risk', 
+                        color_continuous_scale='Reds', range_color=[0, 10])
+fig_map.update_layout(plot_bgcolor=bg, paper_bgcolor=bg, font=dict(color=text), height=450, 
+                      geo=dict(bgcolor=map_bg, landcolor=map_land, showframe=False, showcoastlines=True))
+st.plotly_chart(fig_map, use_container_width=True)
 
     st.subheader("Country Risk Breakdown")
     df_country = pd.DataFrame({
